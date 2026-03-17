@@ -1524,12 +1524,22 @@
       .con-member-info { padding:12px 14px 14px; }
 
       /* ── TEAM MODAL ── */
-      .team-modal { padding:60px 16px 40px; }
-      .team-modal-close { right:20px; top:20px; }
-      .tm-layout { flex-direction:column; }
-      .tm-photo { width:100%; max-height:60vw; }
-      .tm-stats { grid-template-columns:1fr 1fr; }
-      .tm-quote { padding:20px 16px; }
+      .team-modal { padding:56px 0 40px; overflow-y:auto; }
+      .team-modal-close { right:16px; top:16px; }
+      .team-modal-inner { padding:0 16px; }
+      .tm-header {
+        flex-direction:column; gap:16px;
+        margin-bottom:24px; padding-bottom:20px;
+      }
+      .tm-header-left { flex-direction:row; align-items:center; gap:16px; }
+      .tm-header-photo { width:72px; height:72px; margin-right:0; flex-shrink:0; }
+      .tm-name { font-size:clamp(24px,8vw,40px); }
+      .tm-grid { grid-template-columns:1fr; }
+      .tm-block:nth-child(odd) { border-right:none; }
+      .tm-block, .tm-block-full { padding:16px; }
+      .tm-stat-row { gap:20px; }
+      .tm-contact-val { font-size:13px; }
+      .tm-quote { padding:16px; font-size:15px; }
 
       /* ── MATERIAL MODAL ── */
       .mat-modal-inner { padding:60px 16px 40px; }
@@ -3000,10 +3010,12 @@
     if (e.deltaY < -60 && atTop)    { _lastWheel = now; _scrollNav(-1); }
   }, {passive: false});
 
-  // touch swipe
+  // touch swipe — только на десктопе (на телефоне навигация только через меню)
+  const _isTouchDevice = () => window.matchMedia('(hover:none) and (pointer:coarse)').matches;
   let touchY = 0;
   document.addEventListener('touchstart', e => { touchY = e.touches[0].clientY; });
   document.addEventListener('touchend', e => {
+    if (_isTouchDevice()) return; // на телефоне свайп не переключает страницы
     const diff      = touchY - e.changedTouches[0].clientY;
     const scrollTop = window.scrollY;
     const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
