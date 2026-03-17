@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard · New Apartment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@100;200;300;400&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0F1114;
+      --surface: #16191D;
+      --border: rgba(255,255,255,0.07);
+      --text: rgba(255,255,255,0.85);
+      --muted: rgba(255,255,255,0.35);
+      --accent: rgba(180,192,200,0.9);
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      cursor: none;
+      min-height: 100vh;
+    }
+
+    /* ── CURSOR ── */
+    .cursor {
+      position: fixed;
+      width: 14px; height: 14px;
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width .3s ease, height .3s ease, background .3s ease;
+      mix-blend-mode: difference;
+    }
+    .cursor.expanded {
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 52px;
+      background: rgba(15,17,20,0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 200;
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 44px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 300;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: none;
+      transition: color .3s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 1px;
+      background: rgba(255,255,255,0.5);
+      transition: width .3s;
+    }
+
+    .nav-links a:hover, .nav-links a.active { color: rgba(255,255,255,0.9); }
+    .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+
+    /* ── PAGE ── */
+    .page {
+      padding: 120px 52px 60px;
+    }
+
+    .page-header {
+      margin-bottom: 52px;
+      opacity: 0;
+      animation: fadeInUp .8s ease .1s forwards;
+    }
+
+    .page-eyebrow {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 200;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .page-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 200;
+      font-size: clamp(36px, 5vw, 72px);
+      color: var(--text);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .page-title span {
+      font-style: italic;
+      font-weight: 100;
+      color: var(--muted);
+    }
+
+    /* ── BENTO GRID ── */
+    .bento {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: 340px 280px;
+      gap: 12px;
+      opacity: 0;
+      animation: fadeInUp .8s ease .3s forwards;
+    }
+
+    /* Layout:
+       Kitchen   2x1 big (cols 1-5, row 1)
+       Living    2x1 big (cols 6-12, row 1)
+       Hallway   medium  (cols 1-4, row 2)
+       Bathroom  medium  (cols 5-8, row 2)
+       Balcony   small   (cols 9-10, row 2)
+       Laundry   small   (cols 11-12, row 2)
+    */
+
+    .card-kitchen  { grid-column: 1 / 6;  grid-row: 1; }
+    .card-living   { grid-column: 6 / 13; grid-row: 1; }
+    .card-hallway  { grid-column: 1 / 5;  grid-row: 2; }
+    .card-bathroom { grid-column: 5 / 9;  grid-row: 2; }
+    .card-balcony  { grid-column: 9 / 11; grid-row: 2; }
+    .card-laundry  { grid-column: 11/ 13; grid-row: 2; }
+
+    /* ── CARD ── */
+    .card {
+      position: relative;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      cursor: none;
+    }
+
+    .card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .7s ease, filter .7s ease;
+      filter: brightness(0.75);
+    }
+
+    .card:hover .card-img {
+      transform: scale(1.04);
+      filter: brightness(0.9);
+    }
+
+    /* Bottom label */
+    .card-label {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 40px 24px 20px;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+      transform: translateY(8px);
+      transition: transform .4s ease;
+    }
+
+    .card:hover .card-label { transform: translateY(0); }
+
+    .card-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 22px;
+      color: rgba(255,255,255,0.95);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: block;
+    }
+
+    .card-meta {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 200;
+      font-size: 9px;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Status dot */
+    .status {
+      display: inline-block;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+    }
+    .status-planned  { background: rgba(180,192,200,0.5); }
+    .status-progress { background: #E8B86D; }
+    .status-done     { background: #7EC8A4; }
+
+    /* Top-right index */
+    .card-index {
+      position: absolute;
+      top: 16px; right: 20px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 200;
+      font-size: 10px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.2em;
+    }
+
+    /* ── FOOTER ── */
+    .page-footer {
+      margin-top: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      opacity: 0;
+      animation: fadeIn .8s ease .6s forwards;
+    }
+
+    .footer-text {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 200;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+
+    /* ── KEYFRAMES ── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .bento {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+      }
+      .card-kitchen, .card-living,
+      .card-hallway, .card-bathroom,
+      .card-balcony, .card-laundry {
+        grid-column: auto;
+        grid-row: auto;
+        height: 280px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 100px 20px 40px; }
+      nav { padding: 20px 24px; }
+      .nav-links { gap: 16px; }
+      .nav-logo { display: none; }
+      .bento { grid-template-columns: 1fr; }
+      .card-kitchen, .card-living,
+      .card-hallway, .card-bathroom,
+      .card-balcony, .card-laundry {
+        height: 240px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+
+  <nav>
+    <div class="nav-logo">Psyger · Apartment</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dashboard.html" class="active">Dashboard</a></li>
+      <li><a href="#">Materials</a></li>
+      <li><a href="#">Budget</a></li>
+      <li><a href="#">Contacts</a></li>
+    </ul>
+  </nav>
+
+  <div class="page">
+    <div class="page-header">
+      <p class="page-eyebrow">Overview · 6 Zones</p>
+      <h1 class="page-title">All Rooms <span>/ Odessa 2026</span></h1>
+    </div>
+
+    <div class="bento">
+
+      <!-- Kitchen -->
+      <div class="card card-kitchen">
+        <img class="card-img" src="kitchen.png" alt="Kitchen" />
+        <span class="card-index">01</span>
+        <div class="card-label">
+          <span class="card-name">Kitchen</span>
+          <div class="card-meta">
+            <span class="status status-planned"></span>
+            Planned · Open space
+          </div>
+        </div>
+      </div>
+
+      <!-- Living -->
+      <div class="card card-living">
+        <img class="card-img" src="living.png" alt="Living Room" />
+        <span class="card-index">02</span>
+        <div class="card-label">
+          <span class="card-name">Living Room</span>
+          <div class="card-meta">
+            <span class="status status-planned"></span>
+            Planned · TV wall
+          </div>
+        </div>
+      </div>
+
+      <!-- Hallway -->
+      <div class="card card-hallway">
+        <img class="card-img" src="hallway.jpg" alt="Hallway" />
+        <span class="card-index">03</span>
+        <div class="card-label">
+          <span class="card-name">Hallway</span>
+          <div class="card-meta">
+            <span class="status status-planned"></span>
+            Planned · 4.6 sq.m
+          </div>
+        </div>
+      </div>
+
+      <!-- Bathroom -->
+      <div class="card card-bathroom">
+        <img class="card-img" src="bathroom.png" alt="Bathroom" />
+        <span class="card-index">04</span>
+        <div class="card-label">
+          <span class="card-name">Bathroom</span>
+          <div class="card-meta">
+            <span class="status status-planned"></span>
+            Planned · 6.1 sq.m
+          </div>
+        </div>
+      </div>
+
+      <!-- Balcony -->
+      <div class="card card-balcony">
+        <img class="card-img" src="balcony.jpg" alt="Balcony" />
+        <span class="card-index">05</span>
+        <div class="card-label">
+          <span class="card-name">Balcony</span>
+          <div class="card-meta">
+            <span class="status status-planned"></span>
+            Planned
+          </div>
+        </div>
+      </div>
+
+      <!-- Laundry -->
+      <div class="card card-laundry">
+        <img class="card-img" src="room6.jpg" alt="Laundry" />
+        <span class="card-index">06</span>
+        <div class="card-label">
+          <span class="card-name">Laundry</span>
+          <div class="card-meta">
+            <span class="status status-planned"></span>
+            Planned
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="page-footer">
+      <span class="footer-text">Odessa · Ukraine · 40 sq.m</span>
+      <span class="footer-text">© 2026 · Warm Loft Minimalism</span>
+    </div>
+  </div>
+
+  <script>
+    const cursor = document.getElementById('cursor');
+    let mx = 0, my = 0, cx = 0, cy = 0;
+
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+    (function loop() {
+      cx += (mx - cx) * 0.12;
+      cy += (my - cy) * 0.12;
+      cursor.style.left = cx + 'px';
+      cursor.style.top  = cy + 'px';
+      requestAnimationFrame(loop);
+    })();
+
+    document.querySelectorAll('a, .card').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('expanded'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('expanded'));
+    });
+  </script>
+</body>
+</html>
