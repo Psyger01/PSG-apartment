@@ -1423,6 +1423,121 @@
       padding:32px 36px; border-left:1px solid rgba(255,255,255,.1);
       margin-top:1px; background:var(--bg);
     }
+
+    /* ══════════════════════════════
+       MOBILE — полная адаптация
+    ══════════════════════════════ */
+    @media (hover:none) and (pointer:coarse) {
+      /* убираем кастомный курсор на touch-устройствах */
+      .cursor { display:none !important; }
+      body { cursor:auto; }
+      button, a, [onclick] { cursor:pointer; }
+      /* увеличиваем зоны касания */
+      .nav-links button { min-height:44px; display:flex; align-items:center; }
+      .mat-list-item { min-height:52px; }
+      .con-item { min-height:52px; }
+    }
+
+    @media (max-width:480px) {
+      /* ── NAV ── */
+      nav { padding:14px 16px; flex-wrap:nowrap; overflow-x:auto; }
+      .nav-logo { display:none; }
+      .nav-links {
+        gap:0; flex-shrink:0;
+        overflow-x:auto; -webkit-overflow-scrolling:touch;
+        scrollbar-width:none;
+      }
+      .nav-links::-webkit-scrollbar { display:none; }
+      .nav-links button {
+        font-size:9px; letter-spacing:.15em;
+        padding:4px 10px; white-space:nowrap;
+      }
+      #lang-btn { flex-shrink:0; }
+
+      /* ── HOME ── */
+      .hero-title { font-size:clamp(52px,18vw,80px); }
+      .corner { display:none; }
+
+      /* ── OVERVIEW ── */
+      #overview { padding:80px 0 40px; }
+      .ov-hero { height:52vw; min-height:200px; }
+      .ov-hero-label { left:16px; bottom:16px; }
+      .ov-hero-title { font-size:clamp(22px,7vw,36px); }
+      .ov-stats { flex-direction:column; }
+      .ov-stat { border-right:none; border-bottom:1px solid var(--border); padding:16px 20px; }
+      .ov-brief { margin:0 16px 32px; padding:24px 20px; }
+      .ov-grid,.ov-palette,.ov-tape { margin:0 16px 32px; }
+      .ov-materials { grid-template-columns:1fr 1fr; gap:1px; }
+
+      /* ── DASHBOARD ── */
+      #dashboard { padding:80px 12px 32px; }
+      .bento { grid-template-columns:1fr; gap:8px; }
+      .card-kitchen,.card-living,.card-hallway,
+      .card-bathroom,.card-balcony,.card-laundry { height:200px; }
+
+      /* ── MATERIALS ── */
+      .mat-page { padding:80px 0 32px; }
+      .mat-split { flex-direction:column; }
+      .mat-list-panel {
+        width:100%; max-height:240px;
+        border-right:none; border-bottom:1px solid var(--border);
+      }
+      .mat-filters { padding:12px 16px; gap:8px; }
+      .mat-filter { font-size:8px; padding:4px 10px; }
+      .mat-detail-panel { max-height:none; }
+      .mat-detail-content { padding:20px 16px; }
+      .mat-detail-grid { grid-template-columns:1fr 1fr; gap:12px; }
+
+      /* ── BUDGET ── */
+      #budget { padding:80px 0 40px; }
+      .bud-page { padding:0 16px; }
+      .bud-header { padding:0 0 24px; }
+      .bud-section { margin-bottom:32px; }
+      .bud-section-header { padding:16px 0 14px; }
+
+      /* таблица: скрываем "Где" колонку, меняем grid */
+      .bud-table-row {
+        grid-template-columns:2fr 0 1fr 1fr;
+      }
+      .bud-table-row span:nth-child(2) { display:none; }
+      .bud-table-head span:nth-child(2) { display:none; }
+
+      /* зоны — в одну колонку */
+      .bud-zones { grid-template-columns:1fr; }
+      .bud-zone-general { grid-column:auto; }
+      .bud-zone { padding:20px 16px; }
+      .bud-zone-body { grid-template-columns:1fr; gap:16px; }
+      .bud-grand { flex-direction:column; gap:12px; padding:24px 16px; }
+      .bud-grand-amount { font-size:clamp(36px,12vw,56px); }
+
+      /* ── CONTACTS ── */
+      .con-page { padding:80px 16px 40px; }
+      .con-header-row { flex-direction:column; align-items:flex-start; gap:16px; }
+      .con-page-meta { text-align:left; }
+      .con-page-title { font-size:clamp(36px,14vw,72px); }
+      .con-grid { grid-template-columns:1fr; }
+      .con-company { padding:28px 20px; border-right:none; border-bottom:1px solid var(--border); }
+      .con-director { padding:28px 20px; }
+      .con-section { padding:28px 20px; }
+      .con-team-grid { grid-template-columns:1fr 1fr; gap:12px; }
+      .con-member-photo { aspect-ratio:3/4; }
+      .con-member-info { padding:12px 14px 14px; }
+
+      /* ── TEAM MODAL ── */
+      .team-modal { padding:60px 16px 40px; }
+      .team-modal-close { right:20px; top:20px; }
+      .tm-layout { flex-direction:column; }
+      .tm-photo { width:100%; max-height:60vw; }
+      .tm-stats { grid-template-columns:1fr 1fr; }
+      .tm-quote { padding:20px 16px; }
+
+      /* ── MATERIAL MODAL ── */
+      .mat-modal-inner { padding:60px 16px 40px; }
+
+      /* ── LIGHTBOX ── */
+      .lb-prev { left:8px; }
+      .lb-next { right:8px; }
+    }
   </style>
 </head>
 <body>
